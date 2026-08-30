@@ -1,0 +1,82 @@
+omarchy-dev:
+    candy:
+        version: 2026.242.0000
+        description: |
+            The development toolchain Omarchy ships — editor, language runtimes, container and git tooling.
+            omarchy-dev installs the toolchain the distribution ships by default: its
+            Neovim configuration (omarchy-nvim, which seeds /etc/skel independently of
+            the editor package), the language runtimes its mise shims resolve, and the
+            git and container TUIs its keybindings open. The docker PACKAGES are
+            installed here; the daemon is not enabled, because a container cannot own
+            one. Verifiable on the built image: every binary this candy names is on PATH,
+            and omarchy-nvim's editor configuration is seeded into /etc/skel.
+        require:
+            - '@github.com/opencharly/layer-omarchy-base/candy/omarchy-base:v2026.242.0437'
+        distro:
+            arch:
+                package:
+                    # The editor. `nvim` in the base list is a PROVIDES of neovim, not a
+                    # package name, so neovim is named explicitly — a bare `nvim` target
+                    # can prompt for a provider in an unattended transaction.
+                    - neovim
+                    - omarchy-nvim
+                    - tree-sitter-cli
+                    # Language runtimes the shipped mise configuration resolves against.
+                    - ruby
+                    - clang
+                    - llvm
+                    - dotnet-runtime
+                    - python-poetry-core
+                    - mise-bin
+                    - usage
+                    - tobi-try
+                    - postgresql-libs
+                    - mariadb-libs
+                    # Git and container TUIs the desktop's bindings open. The docker
+                    # PACKAGES only — no unit is enabled, since a pod cannot run the
+                    # daemon; charly's own nesting story is layer-container-nesting.
+                    - lazygit
+                    - lazydocker
+                    - docker
+                    - docker-buildx
+                    - docker-compose
+                    - qemu-user-static-binfmt
+        plan:
+            - check: the editor and its Omarchy configuration are installed
+              id: omarchy-dev-editor
+              context:
+                - build
+              # Both halves, because they come from DIFFERENT packages: neovim ships the
+              # binary, omarchy-nvim ships the configuration into /etc/skel. Asserting
+              # only the binary would pass on an image with no Omarchy editor config at
+              # all, which is the failure this candy exists to prevent.
+              exit_status: 0
+              command: |
+                  set -eu
+                  command -v nvim >/dev/null || { echo "missing: nvim" >&2; exit 1; }
+                  test -d /etc/skel/.config/nvim || { echo "missing: /etc/skel/.config/nvim" >&2; exit 1; }
+
+            - check: the git and container TUIs the desktop's bindings open are installed
+              id: omarchy-dev-tuis
+              context:
+                - build
+              exit_status: 0
+              command: |
+                  set -eu
+                  # docker is asserted as a BINARY only. The daemon is deliberately not
+                  # enabled — a pod cannot own one — so a unit check would be a claim
+                  # this candy does not make.
+                  for b in lazygit lazydocker docker; do
+                    command -v "$b" >/dev/null || { echo "missing: $b" >&2; exit 1; }
+                  done
+
+            - check: the language runtimes the shipped mise configuration resolves are installed
+              id: omarchy-dev-runtimes
+              context:
+                - build
+              exit_status: 0
+              command: |
+                  set -eu
+                  for b in ruby clang llvm-config dotnet mise tree-sitter; do
+                    command -v "$b" >/dev/null || { echo "missing: $b" >&2; exit 1; }
+                  done
