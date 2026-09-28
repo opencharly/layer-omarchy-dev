@@ -1,6 +1,5 @@
 omarchy-dev:
     candy:
-        version: 2026.242.0000
         description: |
             The development toolchain Omarchy ships — editor, language runtimes, container and git tooling.
             omarchy-dev installs the toolchain the distribution ships by default: its
