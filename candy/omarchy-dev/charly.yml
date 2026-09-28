@@ -1,6 +1,5 @@
 omarchy-dev:
     candy:
-        version: 2026.242.0000
         description: |
             The development toolchain Omarchy ships — editor, language runtimes, container and git tooling.
             omarchy-dev installs the toolchain the distribution ships by default: its
@@ -11,7 +10,7 @@ omarchy-dev:
             one. Verifiable on the built image: every binary this candy names is on PATH,
             and omarchy-nvim's editor configuration is seeded into /etc/skel.
         require:
-            - '@github.com/opencharly/layer-omarchy-base/candy/omarchy-base:v2026.242.0437'
+            - '@github.com/opencharly/layer-omarchy-base/candy/omarchy-base:v2026.242.0701'
         distro:
             arch:
                 package:
@@ -52,31 +51,29 @@ omarchy-dev:
               # all, which is the failure this candy exists to prevent.
               exit_status: 0
               command: |
-                  set -eu
-                  command -v nvim >/dev/null || { echo "missing: nvim" >&2; exit 1; }
-                  test -d /etc/skel/.config/nvim || { echo "missing: /etc/skel/.config/nvim" >&2; exit 1; }
-
+                set -eu
+                command -v nvim >/dev/null || { echo "missing: nvim" >&2; exit 1; }
+                test -d /etc/skel/.config/nvim || { echo "missing: /etc/skel/.config/nvim" >&2; exit 1; }
             - check: the git and container TUIs the desktop's bindings open are installed
               id: omarchy-dev-tuis
               context:
                 - build
               exit_status: 0
               command: |
-                  set -eu
-                  # docker is asserted as a BINARY only. The daemon is deliberately not
-                  # enabled — a pod cannot own one — so a unit check would be a claim
-                  # this candy does not make.
-                  for b in lazygit lazydocker docker; do
-                    command -v "$b" >/dev/null || { echo "missing: $b" >&2; exit 1; }
-                  done
-
+                set -eu
+                # docker is asserted as a BINARY only. The daemon is deliberately not
+                # enabled — a pod cannot own one — so a unit check would be a claim
+                # this candy does not make.
+                for b in lazygit lazydocker docker; do
+                  command -v "$b" >/dev/null || { echo "missing: $b" >&2; exit 1; }
+                done
             - check: the language runtimes the shipped mise configuration resolves are installed
               id: omarchy-dev-runtimes
               context:
                 - build
               exit_status: 0
               command: |
-                  set -eu
-                  for b in ruby clang llvm-config dotnet mise tree-sitter; do
-                    command -v "$b" >/dev/null || { echo "missing: $b" >&2; exit 1; }
-                  done
+                set -eu
+                for b in ruby clang llvm-config dotnet mise tree-sitter; do
+                  command -v "$b" >/dev/null || { echo "missing: $b" >&2; exit 1; }
+                done
