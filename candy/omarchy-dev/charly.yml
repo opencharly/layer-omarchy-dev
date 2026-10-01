@@ -10,7 +10,7 @@ omarchy-dev:
             one. Verifiable on the built image: every binary this candy names is on PATH,
             and omarchy-nvim's editor configuration is seeded into /etc/skel.
         require:
-            - '@github.com/opencharly/layer-omarchy-base/candy/omarchy-base:v2026.242.0437'
+            - '@github.com/opencharly/layer-omarchy-base/candy/omarchy-base:v2026.272.0437'
         distro:
             arch:
                 package:
